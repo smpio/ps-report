@@ -4,7 +4,7 @@ This daemon periodically collects information for all running processes and send
 
 ## Requiremenets
 
-* The program should be run in privileged mode with host pid namespace (`docker run --privileged=true --pid=host`)
+* The program should be run with host pid namespace (`docker run --pid=host`)
 
 ## Usage
 
