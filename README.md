@@ -1,6 +1,6 @@
 # ps-report
 
-This daemon periodically collects information for all running processes and sends cgroup information to redis. This will help you to debug OOM events in a cluster of linux containers. OOM event only contains PID and process executable name without container name.
+This daemon periodically collects information for all running processes and sends cgroup information to postgres. This will help you to debug OOM events in a cluster of linux containers. OOM event only contains PID and process executable name without container name.
 
 ## Requiremenets
 
@@ -9,14 +9,10 @@ This daemon periodically collects information for all running processes and send
 ## Usage
 
 ```
+  -db-url string
+    	database URL
   -hostname string
-    	hostname used in redis key prefix (default is hostname returned by os)
+    	hostname used in redis key prefix (default "docker-desktop")
   -poll-interval uint
     	process poll interval in seconds (default 60)
-  -redis-addr string
-    	redis address in form host:port
-  -redis-db int
-    	redis DB
-  -redis-passwd string
-    	redis password
 ```

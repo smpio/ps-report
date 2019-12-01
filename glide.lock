@@ -1,13 +1,9 @@
-hash: 0c241dd319c9448d3ec40e437ce26640781ffff2e5b6ae761245f9337816f34e
-updated: 2019-12-01T12:09:47.937537+03:00
+hash: f0e16f518be9b5c5ed699e42fe3ca2b377915b68a808cacba00257de98e4f6c2
+updated: 2019-12-01T13:42:36.193148+03:00
 imports:
-- name: github.com/go-redis/redis
-  version: 7f69d5e32072d151eb6936cbe2306413e8117488
+- name: github.com/lib/pq
+  version: 3427c32cb71afc948325f299f040e53c1dd78979
   subpackages:
-  - internal
-  - internal/consistenthash
-  - internal/hashtag
-  - internal/pool
-  - internal/proto
-  - internal/util
+  - oid
+  - scram
 testImports: []

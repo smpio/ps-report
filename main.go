@@ -2,7 +2,6 @@ package main
 
 import (
 	"flag"
-	"fmt"
 	"log"
 	"os"
 	"time"
@@ -14,26 +13,23 @@ import (
 func main() {
 	defaultHostname, err := os.Hostname()
 
-	redisAddr := flag.String("redis-addr", "", "redis address in form host:port")
-	redisPasswd := flag.String("redis-passwd", "", "redis password")
-	redisDB := flag.Int("redis-db", 0, "redis DB")
+	dbURL := flag.String("db-url", "", "database URL")
 	pollIntervalSeconds := flag.Uint("poll-interval", 60, "process poll interval in seconds")
 	hostname := flag.String("hostname", defaultHostname, "hostname used in redis key prefix")
 	flag.Parse()
 
-	if *redisAddr == "" {
-		log.Fatalln("Redis address not set")
+	if *dbURL == "" {
+		log.Fatalln("Database URL not set")
 	}
 
-	ds, err := datastore.New(*redisAddr, *redisPasswd, *redisDB)
+	ds, err := datastore.New(*dbURL)
 	if err != nil {
 		log.Fatalln(err)
 	}
 
-	log.Println("Connected to Redis")
+	log.Println("Connected to database")
 
 	pollInterval := time.Duration(*pollIntervalSeconds) * time.Second
-	recordExpiration := pollInterval + (5 * time.Second)
 
 	c := make(chan process.PollResult, 1024)
 	go process.Poll(c, pollInterval)
@@ -44,7 +40,7 @@ func main() {
 		}
 		p := res.Process
 
-		if err := ds.Write(fmt.Sprint(*hostname, ":", p.Pid, ":", p.Cgroup), "", recordExpiration); err != nil {
+		if err := ds.Write(*hostname, p.Pid, p.Cgroup); err != nil {
 			log.Println(err)
 		}
 	}
