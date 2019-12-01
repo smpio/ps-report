@@ -2,6 +2,6 @@ package process
 
 // Process pid and cgroup
 type Process struct {
-	Pid    int64
+	Pid    uint64
 	Cgroup string
 }

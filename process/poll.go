@@ -15,7 +15,7 @@ type PollResult struct {
 	Error   error
 }
 
-// PollProcesses polls processes with specified interval and writes them to channel
+// Poll polls processes with specified interval and writes them to channel
 func Poll(c chan PollResult, interval time.Duration) {
 	for {
 		getProcesses(c)
@@ -53,7 +53,7 @@ func getProcesses(c chan PollResult) {
 				continue
 			}
 
-			pid, err := strconv.ParseInt(name, 10, 0)
+			pid, err := strconv.ParseUint(name, 10, 0)
 			if err != nil {
 				continue
 			}
@@ -68,7 +68,7 @@ func getProcesses(c chan PollResult) {
 	}
 }
 
-func makeProcess(pid int64) (*Process, error) {
+func makeProcess(pid uint64) (*Process, error) {
 	p := &Process{Pid: pid}
 	cgroup, err := getProcessCgroup(pid)
 	if err != nil {
@@ -79,7 +79,7 @@ func makeProcess(pid int64) (*Process, error) {
 	return p, nil
 }
 
-func getProcessCgroup(pid int64) (string, error) {
+func getProcessCgroup(pid uint64) (string, error) {
 	f, err := os.Open(fmt.Sprint("/proc/", pid, "/cgroup"))
 	if err != nil {
 		return "", err
