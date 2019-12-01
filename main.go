@@ -44,7 +44,7 @@ func main() {
 		}
 		p := res.Process
 
-		if err := ds.Write(fmt.Sprint(*hostname, ":", p.Pid), p.Cgroup, recordExpiration); err != nil {
+		if err := ds.Write(fmt.Sprint(*hostname, ":", p.Pid, ":", p.Cgroup), "", recordExpiration); err != nil {
 			log.Println(err)
 		}
 	}
