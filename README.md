@@ -1,20 +1,22 @@
 # ps-report
 
-This daemon listens for process fork events using kernel netlink interface and sends process cgroup information to redis. This will help you to debug OOM events in a cluster of linux containers. OOM event only contains PID and process executable name without container name.
+This daemon periodically collects information for all running processes and sends cgroup information to redis. This will help you to debug OOM events in a cluster of linux containers. OOM event only contains PID and process executable name without container name.
 
 ## Requiremenets
 
-* Kernel should be build with `CONFIG_PROC_EVENTS=y` (check in `/proc/config.gz`)
-* The program should be run in privileged mode with host network and host pid namespace (`docker run --privileged=true --net=host --pid=host`)
+* The program should be run in privileged mode with host pid namespace (`docker run --privileged=true --pid=host`)
 
 ## Usage
 
 ```
-TODO: paste ./ps-report -h
+  -hostname string
+    	hostname used in redis key prefix (default is hostname returned by os)
+  -poll-interval uint
+    	process poll interval in seconds (default 60)
+  -redis-addr string
+    	redis address in form host:port
+  -redis-db int
+    	redis DB
+  -redis-passwd string
+    	redis password
 ```
-
-## See
-
-* https://github.com/kinvolk/nswatch
-* https://github.com/cloudfoundry/gosigar/tree/master/psnotify
-* https://godoc.org/github.com/remyoudompheng/go-netlink
