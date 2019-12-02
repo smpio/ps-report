@@ -59,24 +59,20 @@ func getProcesses(c chan PollResult) {
 			}
 
 			p, err := makeProcess(pid)
-			if err != nil {
+			if err == nil {
+				c <- PollResult{Process: p}
+			} else {
 				c <- PollResult{Error: err}
 			}
-
-			c <- PollResult{Process: p}
 		}
 	}
 }
 
 func makeProcess(pid uint64) (*Process, error) {
+	var err error
 	p := &Process{Pid: pid}
-	cgroup, err := getProcessCgroup(pid)
-	if err != nil {
-		return p, err
-	}
-
-	p.Cgroup = cgroup
-	return p, nil
+	p.Cgroup, err = getProcessCgroup(pid)
+	return p, err
 }
 
 func getProcessCgroup(pid uint64) (string, error) {
