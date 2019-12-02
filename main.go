@@ -37,7 +37,9 @@ func main() {
 	for res := range c {
 		if res.Error != nil {
 			log.Println(res.Error)
+			continue
 		}
+
 		p := res.Process
 
 		if err := ds.Write(*hostname, p.Pid, p.Cgroup); err != nil {
