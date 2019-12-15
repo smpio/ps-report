@@ -80,6 +80,7 @@ func getProcessCgroup(pid uint64) (string, error) {
 	if err != nil {
 		return "", err
 	}
+	defer f.Close()
 
 	reader := csv.NewReader(f)
 	reader.Comma = ':'
