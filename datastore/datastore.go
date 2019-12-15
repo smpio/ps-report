@@ -24,7 +24,8 @@ func New(dbURL string) (*Connection, error) {
 			ts timestamp NOT NULL DEFAULT current_timestamp,
 			hostname text NOT NULL,
 			pid bigint NOT NULL,
-			cgroup text NOT NULL
+			cgroup text NOT NULL,
+			nspid bigint
 		)`)
 	if err != nil {
 		return nil, err
@@ -41,7 +42,7 @@ func New(dbURL string) (*Connection, error) {
 	}
 
 	_, err = db.Exec(
-		`CREATE OR REPLACE FUNCTION add_record(_hostname text, _pid bigint, _cgroup text) RETURNS VOID AS $$
+		`CREATE OR REPLACE FUNCTION add_record2(_hostname text, _pid bigint, _cgroup text, _nspid bigint) RETURNS VOID AS $$
 		DECLARE
 			last_cgroup text;
 		BEGIN
@@ -57,7 +58,7 @@ func New(dbURL string) (*Connection, error) {
 			END;
 
 			IF last_cgroup <> _cgroup THEN
-				INSERT INTO records(hostname, pid, cgroup) VALUES(_hostname, _pid, _cgroup);
+				INSERT INTO records(hostname, pid, cgroup, nspid) VALUES(_hostname, _pid, _cgroup, _nspid);
 			END IF;
 		END;
 		$$ LANGUAGE plpgsql`)
@@ -71,8 +72,8 @@ func New(dbURL string) (*Connection, error) {
 }
 
 // Write writes to datastore
-func (c *Connection) Write(hostname string, pid uint64, cgroup string) error {
-	_, err := c.db.Exec(`SELECT add_record($1, $2, $3)`, hostname, pid, cgroup)
+func (c *Connection) Write(hostname string, pid uint64, cgroup string, nspid uint64) error {
+	_, err := c.db.Exec(`SELECT add_record2($1, $2, $3, $4)`, hostname, pid, cgroup, nspid)
 	return err
 }
 

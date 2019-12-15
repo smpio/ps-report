@@ -1,10 +1,12 @@
 package process
 
 import (
+	"bufio"
 	"encoding/csv"
 	"fmt"
 	"io"
 	"os"
+	"regexp"
 	"strconv"
 	"time"
 )
@@ -15,8 +17,17 @@ type PollResult struct {
 	Error   error
 }
 
+var nsPIDRegExp *regexp.Regexp
+
 // Poll polls processes with specified interval and writes them to channel
 func Poll(c chan PollResult, interval time.Duration) {
+	var err error
+	nsPIDRegExp, err = regexp.Compile("^NSpid:.*\\s(\\d+)\\s*$")
+	if err != nil {
+		c <- PollResult{Error: err}
+		return
+	}
+
 	for {
 		getProcesses(c)
 		time.Sleep(interval)
@@ -72,6 +83,10 @@ func makeProcess(pid uint64) (*Process, error) {
 	var err error
 	p := &Process{Pid: pid}
 	p.Cgroup, err = getProcessCgroup(pid)
+	if err == nil {
+		p.NSPID, _ = getProcessContainerPID(pid)
+	}
+
 	return p, err
 }
 
@@ -105,4 +120,31 @@ func getProcessCgroup(pid uint64) (string, error) {
 	}
 
 	return "", fmt.Errorf("no cgroup for %d", pid)
+}
+
+func getProcessContainerPID(pid uint64) (uint64, error) {
+	f, err := os.Open(fmt.Sprint("/proc/", pid, "/status"))
+	if err != nil {
+		return 0, err
+	}
+	defer f.Close()
+
+	scanner := bufio.NewScanner(f)
+	for scanner.Scan() {
+		line := scanner.Text()
+		match := nsPIDRegExp.FindStringSubmatch(line)
+		if match != nil {
+			nsPID, err := strconv.ParseUint(match[1], 10, 64)
+			if err != nil {
+				return 0, err
+			}
+			return nsPID, nil
+		}
+	}
+
+	if err := scanner.Err(); err != nil {
+		return 0, err
+	}
+
+	return 0, fmt.Errorf("no NSpid for %d", pid)
 }
