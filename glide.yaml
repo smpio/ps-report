@@ -1,4 +1,0 @@
-package: github.com/smpio/ps-report
-import:
-- package: github.com/lib/pq
-  version: ^1.2.0

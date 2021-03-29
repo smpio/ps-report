@@ -1,9 +1,0 @@
-hash: f0e16f518be9b5c5ed699e42fe3ca2b377915b68a808cacba00257de98e4f6c2
-updated: 2019-12-01T13:42:36.193148+03:00
-imports:
-- name: github.com/lib/pq
-  version: 3427c32cb71afc948325f299f040e53c1dd78979
-  subpackages:
-  - oid
-  - scram
-testImports: []
