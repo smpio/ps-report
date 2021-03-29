@@ -48,7 +48,7 @@ func New(dbURL string) (*Connection, error) {
 		return nil, err
 	}
 
-	_, err = db.Exec(`CREATE INDEX IF NOT EXISTS records_hostname_pid ON records (hostname, pid)`)
+	_, err = db.Exec(`CREATE INDEX IF NOT EXISTS records_hostname_pid_seq_id ON records (hostname, pid, seq_id)`)
 	if err != nil {
 		return nil, err
 	}

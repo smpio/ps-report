@@ -257,5 +257,5 @@ func fillProcessStatus(pid uint64, p *Process) error {
 		return err
 	}
 
-	return fmt.Errorf("no NSpid for %d", pid)
+	return nil
 }
