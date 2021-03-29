@@ -42,7 +42,7 @@ func main() {
 
 		p := res.Process
 
-		if err := ds.Write(*hostname, p.Pid, p.Cgroup, p.NSPID); err != nil {
+		if err := ds.Write(*hostname, p); err != nil {
 			log.Println(err)
 		}
 	}

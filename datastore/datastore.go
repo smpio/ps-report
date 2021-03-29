@@ -5,6 +5,8 @@ import (
 
 	// We support only postgres
 	_ "github.com/lib/pq"
+
+	"github.com/smpio/ps-report/process"
 )
 
 // Connection is datastore connection
@@ -25,7 +27,17 @@ func New(dbURL string) (*Connection, error) {
 			hostname text NOT NULL,
 			pid bigint NOT NULL,
 			cgroup text NOT NULL,
-			nspid bigint
+			nspid bigint,
+			vm_peak bigint,
+			vm_size bigint,
+			vm_lck bigint,
+			vm_pin bigint,
+			vm_hwm bigint,
+			vm_rss bigint,
+			rss_anon bigint,
+			rss_file bigint,
+			rss_shmem bigint,
+			seq_id integer
 		)`)
 	if err != nil {
 		return nil, err
@@ -41,39 +53,17 @@ func New(dbURL string) (*Connection, error) {
 		return nil, err
 	}
 
-	_, err = db.Exec(
-		`CREATE OR REPLACE FUNCTION add_record2(_hostname text, _pid bigint, _cgroup text, _nspid bigint) RETURNS VOID AS $$
-		DECLARE
-			last_cgroup text;
-		BEGIN
-			BEGIN
-				SELECT cgroup
-					INTO STRICT last_cgroup
-					FROM records
-					WHERE hostname = _hostname AND pid = _pid
-					ORDER BY ts DESC
-					LIMIT 1;
-			EXCEPTION WHEN NO_DATA_FOUND THEN
-				last_cgroup := '';
-			END;
-
-			IF last_cgroup <> _cgroup THEN
-				INSERT INTO records(hostname, pid, cgroup, nspid) VALUES(_hostname, _pid, _cgroup, _nspid);
-			END IF;
-		END;
-		$$ LANGUAGE plpgsql`)
-	if err != nil {
-		return nil, err
-	}
-
 	return &Connection{
 		db: db,
 	}, nil
 }
 
 // Write writes to datastore
-func (c *Connection) Write(hostname string, pid uint64, cgroup string, nspid uint64) error {
-	_, err := c.db.Exec(`SELECT add_record2($1, $2, $3, $4)`, hostname, pid, cgroup, nspid)
+func (c *Connection) Write(hostname string, p *process.Process) error {
+	_, err := c.db.Exec(`INSERT INTO records(hostname, pid, cgroup, nspid, vm_peak, vm_size, vm_lck, vm_pin, vm_hwm, vm_rss, rss_anon,
+							rss_file, rss_shmem, seq_id) VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)`,
+							hostname, p.Pid, p.Cgroup, p.NSpid, p.VmPeak, p.VmSize, p.VmLck, p.VmPin, p.VmHWM, p.VmRSS, p.RssAnon,
+							p.RssFile, p.RssShmem, p.SeqID)
 	return err
 }
 
