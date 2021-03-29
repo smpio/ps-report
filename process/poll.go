@@ -58,13 +58,8 @@ func getProcesses(c chan PollResult) {
 				continue
 			}
 
-			// We only care if the name starts with a numeric
 			name := fi.Name()
-			if name[0] < '0' || name[0] > '9' {
-				continue
-			}
-
-			pid, err := strconv.ParseUint(name, 10, 0)
+			pid, err := strconv.ParseUint(name, 10, 64)
 			if err != nil {
 				continue
 			}
