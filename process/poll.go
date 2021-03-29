@@ -128,7 +128,7 @@ func getProcesses(c chan PollResult) {
 			}
 
 			name := fi.Name()
-			pid, err := strconv.ParseUint(name, 10, 0)
+			pid, err := strconv.ParseUint(name, 10, 64)
 			if err != nil {
 				continue
 			}
