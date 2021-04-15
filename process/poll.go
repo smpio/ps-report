@@ -5,11 +5,13 @@ import (
 	"encoding/csv"
 	"fmt"
 	"io"
+	"io/ioutil"
+	"log"
+	"math/rand"
 	"os"
 	"regexp"
 	"strconv"
 	"time"
-	"math/rand"
 )
 
 // PollResult can be process or error
@@ -18,16 +20,16 @@ type PollResult struct {
 	Error   error
 }
 
-var nsPidRegExp     *regexp.Regexp
-var vmPeakExp       *regexp.Regexp
-var vmSizeExp       *regexp.Regexp
-var vmLckExp        *regexp.Regexp
-var vmPinExp        *regexp.Regexp
-var vmHWMExp        *regexp.Regexp
-var vmRSSExp        *regexp.Regexp
-var rssAnonExp      *regexp.Regexp
-var rssFileExp      *regexp.Regexp
-var rssShmemExp     *regexp.Regexp
+var nsPidRegExp *regexp.Regexp
+var vmPeakExp *regexp.Regexp
+var vmSizeExp *regexp.Regexp
+var vmLckExp *regexp.Regexp
+var vmPinExp *regexp.Regexp
+var vmHWMExp *regexp.Regexp
+var vmRSSExp *regexp.Regexp
+var rssAnonExp *regexp.Regexp
+var rssFileExp *regexp.Regexp
+var rssShmemExp *regexp.Regexp
 
 // Poll polls processes with specified interval and writes them to channel
 func Poll(c chan PollResult, interval time.Duration) {
@@ -154,7 +156,16 @@ func makeProcess(pid uint64) (*Process, error) {
 	}
 
 	err = fillProcessStatus(pid, p)
-	return p, err
+	if err != nil {
+		log.Print(err)
+	}
+
+	err = fillProcessCmd(pid, p)
+	if err != nil {
+		log.Print(err)
+	}
+
+	return p, nil
 }
 
 func fillProcessCgroup(pid uint64, p *Process) error {
@@ -257,5 +268,15 @@ func fillProcessStatus(pid uint64, p *Process) error {
 		return err
 	}
 
+	return nil
+}
+
+func fillProcessCmd(pid uint64, p *Process) error {
+	data, err := ioutil.ReadFile(fmt.Sprint("/proc/", pid, "/cmdline"))
+	if err != nil {
+		return err
+	}
+
+	p.Cmd = string(data)
 	return nil
 }

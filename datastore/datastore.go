@@ -37,6 +37,7 @@ func New(dbURL string) (*Connection, error) {
 			rss_anon bigint,
 			rss_file bigint,
 			rss_shmem bigint,
+			cmd text,
 			seq_id integer
 		)`)
 	if err != nil {
@@ -61,9 +62,9 @@ func New(dbURL string) (*Connection, error) {
 // Write writes to datastore
 func (c *Connection) Write(hostname string, p *process.Process) error {
 	_, err := c.db.Exec(`INSERT INTO records(hostname, pid, cgroup, nspid, vm_peak, vm_size, vm_lck, vm_pin, vm_hwm, vm_rss, rss_anon,
-							rss_file, rss_shmem, seq_id) VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)`,
-							hostname, p.Pid, p.Cgroup, p.NSpid, p.VmPeak, p.VmSize, p.VmLck, p.VmPin, p.VmHWM, p.VmRSS, p.RssAnon,
-							p.RssFile, p.RssShmem, p.SeqID)
+							rss_file, rss_shmem, cmd, seq_id) VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15)`,
+		hostname, p.Pid, p.Cgroup, p.NSpid, p.VmPeak, p.VmSize, p.VmLck, p.VmPin, p.VmHWM, p.VmRSS, p.RssAnon,
+		p.RssFile, p.RssShmem, p.Cmd, p.SeqID)
 	return err
 }
 
