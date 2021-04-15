@@ -11,6 +11,7 @@ import (
 	"os"
 	"regexp"
 	"strconv"
+	"strings"
 	"time"
 )
 
@@ -277,6 +278,6 @@ func fillProcessCmd(pid uint64, p *Process) error {
 		return err
 	}
 
-	p.Cmd = string(data)
+	p.Cmd = strings.ReplaceAll(string(data), "\x00", "")
 	return nil
 }
